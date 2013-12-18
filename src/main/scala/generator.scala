@@ -6,19 +6,21 @@ class Generator[A] extends Iterator[A] with (A => Unit @ suspendable) {
     private var k: Option[Unit => Unit] = None
     
     def next = {
-	val a0 = a.get
-	val k0 = k.get
-        a = None
-	k = None
-	k0()
-	a0
+		val a0 = a.get
+		val k0 = k.get
+	    a = None
+		k = None
+		k0()
+		a0
     }
     
     def hasNext = k.isDefined
     
     def apply(a0: A): Unit @ suspendable = {
-	a = Some(a0)
-	shift { k0: (Unit => Unit) => k = Some(k0) }
+		a = Some(a0)
+		shift { 
+			k0: (Unit => Unit) => k = Some(k0)
+		}
     }
 }
  
@@ -30,12 +32,16 @@ object Generator {
         g
     } 
     
-    trait SuspendableForeach[A]{ def foreach( f: A => Unit @suspendable ): Unit @ suspendable }
- 
+    trait SuspendableForeach[A]{ 
+    	def foreach( f: A => Unit @suspendable ): Unit @ suspendable 
+    }
+
     def suspendable[A]( ible: Iterable[A]) = new SuspendableForeach[A] {
         def foreach( f: A => Unit @ suspendable ) : Unit @ suspendable = {
             val i = ible.iterator
-            while( i.hasNext ) f(i.next)
+            while( i.hasNext ) {
+            	f(i.next)
+            }
         }
     }
 }
