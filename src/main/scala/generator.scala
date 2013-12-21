@@ -40,7 +40,7 @@ abstract class Generator[T] extends Iterator[T] {
 	  * called.
 	  *
 	  */
-	protected def produce(item: T) = {
+	protected[this] def produce(item: T) = {
 		shift {f: (Unit=>Unit) =>
 			callback = f
 			result = item
