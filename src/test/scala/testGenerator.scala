@@ -1,5 +1,5 @@
 import org.scalatest._
-import generator._
+import generator.Generator
 
 class GeneratorTest extends FlatSpec {
     "A Generator" should "be able to produce a Counter object" in {
@@ -45,6 +45,29 @@ class GeneratorTest extends FlatSpec {
         // And the first one has not lost count
         val counts1_1 = for (i <- 0 until 10) yield counter1.next()
         assert(counts1_1 === Vector(11,12,13,14,15,16,17,18,19,20))
+    }
+
+    it should "be able to create a Chain" in {
+        class Chain[T](val iterables: Iterable[T]*) extends Generator[T] {
+
+            def generate() = {
+                val iterableIterator = iterables.iterator
+                var thisIterator: Iterator[T] = null
+                while (iterableIterator.hasNext) {
+                    thisIterator = iterableIterator.next().iterator
+                    while (thisIterator.hasNext) {
+                        produce(thisIterator.next())
+                    }
+                }
+            }
+        }
+        object Chain {
+            def apply[T](iterables: Iterable[T]*) = {
+                new Chain(iterables:_*)
+            }
+        }
+        val chain = Chain(Array(1,2,3), Array(4,5,6))
+        assert(chain.toArray === Array(1,2,3,4,5,6))
     }
 
     "The hasNext method of a Generator" should "return false when the Generator has been exhausted" in {

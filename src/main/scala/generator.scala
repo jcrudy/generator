@@ -18,12 +18,11 @@ import scala.util.continuations.{shift, reset, cpsParam}
   *         }
   *     }
   */
-abstract class Generator[T] extends Iterator[T] {
+trait Generator[T] extends Iterator[T] {
 
 	private var result: T = _
 	private var empty = false
 	private var callback: Unit=>Unit = null
-
 	reset {
 		generate()
 		empty = true
@@ -40,7 +39,7 @@ abstract class Generator[T] extends Iterator[T] {
 	  * called.
 	  *
 	  */
-	protected[this] def produce(item: T) = {
+	protected def produce(item: T) = {
 		shift {f: (Unit=>Unit) =>
 			callback = f
 			result = item
